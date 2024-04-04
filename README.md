@@ -2,9 +2,9 @@
 
 ## Background
 
-Apache Airflow is the leading orchestration tool for batch workloads. Originally conceived at Facebook and eventually open-sourced at AirBnB, Airflow allows you to define complex directed acyclic graphs (DAG) by writing simple Python. 
+Apache Airflow is the leading orchestration tool for batch workloads. Originally conceived at Facebook and eventually open-sourced at AirBnB, Airflow allows you to define complex directed acyclic graphs (DAG) by writing simple Python.
 
-Airflow has a number of built-in concepts that make data engineering simple, including DAGs (which describe how to run a workflow) and Operators (which describe what actually gets done). See the Airflow documentation for more detail: https://airflow.apache.org/concepts.html 
+Airflow has a number of built-in concepts that make data engineering simple, including DAGs (which describe how to run a workflow) and Operators (which describe what actually gets done). See the Airflow documentation for more detail: https://airflow.apache.org/concepts.html
 
 Airflow also comes with its own architecture: a database to persist the state of DAGs and connections, a web server that supports the user-interface, and workers that are managed together by the scheduler and database. Logs persist both in flat files and the database, and Airflow can be setup to write remote logs (to S3 for example). Logs are viewable in the UI.
 
@@ -12,17 +12,17 @@ Airflow also comes with its own architecture: a database to persist the state of
 
 ## A Note on managing Airflow dependencies
 
-Airflow is tricky to install correctly because it is both an application and a library. Applications freeze their dependencies to ensure stability, while libraries leave their dependencies open for upgrades to take advantage of new features. Airflow is both, so it doesn't freeze dependencies. This means that depending on the day, a simple `pip install apache-airflow` is not guaranteed to produce a workable version of the Airflow application. 
+Airflow is tricky to install correctly because it is both an application and a library. Applications freeze their dependencies to ensure stability, while libraries leave their dependencies open for upgrades to take advantage of new features. Airflow is both, so it doesn't freeze dependencies. This means that depending on the day, a simple `pip install apache-airflow` is not guaranteed to produce a workable version of the Airflow application.
 
-To combat this, Airflow provides a set of [constraints files](https://airflow.apache.org/docs/apache-airflow/stable/installation.html#constraints-files) that are known working versions of Airflow. 
+To combat this, Airflow provides a set of [constraints files](https://airflow.apache.org/docs/apache-airflow/stable/installation.html#constraints-files) that are known working versions of Airflow.
 
-This template installs Airflow using the constraints file at `https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt` and allows for building a custom Airflow image on top of this constraints file by simply adding additional dependencies to `airflow.requirements.txt`. Local dependencies are added to `local-requirements.txt`. 
+This template installs Airflow using the constraints file at `https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt` and allows for building a custom Airflow image on top of this constraints file by simply adding additional dependencies to `airflow.requirements.txt`. Local dependencies are added to `local-requirements.txt`.
 
 ### Why not just use the [official docker-compose file](https://github.com/apache/airflow/blob/master/docs/apache-airflow/start/docker-compose.yaml)?
 
-It's easier to customize our additional dependencies with Airflow by building our own image. The master Airflow image doesn't allow this kind of low-level control. 
+It's easier to customize our additional dependencies with Airflow by building our own image. The master Airflow image doesn't allow this kind of low-level control.
 
-This template is particularly useful to Airflow power users that tend to write a lot of custom plugins or functionality using external dependencies. 
+This template is particularly useful to Airflow power users that tend to write a lot of custom plugins or functionality using external dependencies.
 
 ### Why not just extend off of the [official Airflow image](https://airflow.apache.org/docs/apache-airflow/stable/production-deployment.html#production-container-images)?
 
@@ -34,9 +34,9 @@ To install any other pip dependencies, simply add it to `airflow.requirements.tx
 
 ## Getting Started
 
-This repository was created with `Python 3.8.6`, but should work for all versions of Python 3. 
+This repository was created with `Python 3.8.6`, but should work for all versions of Python 3.
 
-DAGs should be developed & tested locally first, before being promoted to a development environment for integration testing. Once DAGs are successful in the lower environments, they can be promoted to production. 
+DAGs should be developed & tested locally first, before being promoted to a development environment for integration testing. Once DAGs are successful in the lower environments, they can be promoted to production.
 
 Code is contributed either in `dags`, a directory that houses all Airflow DAG configuration files, or `plugins`, a directory that houses Python objects that can be used to extend Airflow.
 
@@ -50,7 +50,7 @@ This command will build your local Airflow image and start Airflow automatically
 
 Navigate to http://localhost:8080/ and start writing & testing your DAGs! Login with the user-password combo: `admin:admin` (you can change this in `docker-compose.yaml`).
 
-You'll notice in `docker-compose.yaml` that both DAGs and plugins are mounted as volumes. This means once Airflow is started, any changes to your code will be quickly synced to the webserver and scheduler. You shouldn't have to restart the Airflow instance during a period of development! 
+You'll notice in `docker-compose.yaml` that both DAGs and plugins are mounted as volumes. This means once Airflow is started, any changes to your code will be quickly synced to the webserver and scheduler. You shouldn't have to restart the Airflow instance during a period of development!
 
 When you're done, simply:
 
@@ -58,7 +58,7 @@ When you're done, simply:
 
 ### Testing & Linting
 
-Instantiating a local virtual environment is now entirely optional. You can develop entirely through Docker, as Airflow runs inside of docker-compose and `test-docker` and `lint-docker` provide avenues for running those steps without a virtual environment. 
+Instantiating a local virtual environment is now entirely optional. You can develop entirely through Docker, as Airflow runs inside of docker-compose and `test-docker` and `lint-docker` provide avenues for running those steps without a virtual environment.
 
 However, not using a virtual environment also means sacrificing any linting/language-server functionality provided by your IDE. To setup your virtual environment:
 
@@ -66,7 +66,7 @@ However, not using a virtual environment also means sacrificing any linting/lang
 
 This project is also fully linted with black and pylint, even using a cool pylint plugin called [pylint-airflow](https://pypi.org/project/pylint-airflow/). To run linting:
 
-With your virtual environment: 
+With your virtual environment:
 
         make lint
 
@@ -81,7 +81,7 @@ With your virtual environment:
         make test
 
 Inside Docker:
-        
+
         make test-docker
 
 ### Cleaning up your local environment
@@ -93,11 +93,11 @@ Reset your local docker-compose:
         make reset-airflow
 
 Rebuild the local Airflow image for docker-compose (useful if you make changes to the Dockerfile):
-        
+
         make rebuild-airflow
 
 Clean up Pytest artifacts:
-        
+
         make clean-pytest
 
 Reset your virtual environment:
@@ -110,6 +110,34 @@ Start completely from scratch:
 
 ### Deployment
 
-Once you've written your DAGs, the next step is to deploy them to your Airflow instance. This is a matter of syncing the `dags` and `plugins` directories to their respective destinations. 
+Once you've written your DAGs, the next step is to deploy them to your Airflow instance. This is a matter of syncing the `dags` and `plugins` directories to their respective destinations.
 
 TODO: add some examples and documentation of deployments to different Airflow cloud providers (Astronomer, Cloud Composer, etc.) using different CI technologies (CircleCI, Github Actions, etc.)
+
+## Migrating from Airflow to Dagster
+
+This project has been migrated from Apache Airflow to Dagster to take advantage of Dagster's modern features for data orchestration and pipeline management. Dagster provides a more intuitive way to define and execute data workflows, with an emphasis on type safety, testability, and modularity.
+
+### Getting Started with Dagster
+
+To run the Dagster jobs, ensure you have Dagster and Dagit installed in your environment. You can install them using pip:
+
+    pip install dagster dagit
+
+The translated Airflow DAGs are now defined as Dagster jobs in the `dagster_solids.py` file located in the root of the project directory. Each Airflow operator has been converted to a Dagster `@op`, and the DAGs are represented as Dagster `@job` functions.
+
+To execute a Dagster job, run the following command:
+
+    python3 dagster_solids.py
+
+This will execute all jobs defined in the `dagster_solids.py` file. You can also execute individual jobs in Dagit by navigating to the Dagit UI and selecting the job you wish to run.
+
+### Job Configuration
+
+Dagster jobs are configured using the `run_config` structure, which specifies the parameters and resources required for execution. The `run_config` for each job is defined within the `dagster_solids.py` file, and you can modify it as needed to suit your execution environment.
+
+For more information on configuring and running Dagster jobs, refer to the [Dagster documentation](https://docs.dagster.io/overview).
+
+### Next Steps
+
+After running the jobs, you can view logs and outputs in the Dagit UI, which provides a visual interface for monitoring and debugging Dagster pipelines. For any customizations or further development, refer to the `dagster_solids.py` file and the Dagster documentation for guidance.
