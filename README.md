@@ -1,143 +1,35 @@
-# Airflow Codebase Template
+# Migration from Airflow to Dagster
 
-## Background
+This repository contains the result of migrating an Airflow project to Dagster, utilizing Dagster's latest APIs and features for data orchestration and pipeline management. The original Airflow project can be found at [soggycactus/airflow-repo-template](https://github.com/soggycactus/airflow-repo-template).
 
-Apache Airflow is the leading orchestration tool for batch workloads. Originally conceived at Facebook and eventually open-sourced at AirBnB, Airflow allows you to define complex directed acyclic graphs (DAG) by writing simple Python.
+## Why Dagster?
 
-Airflow has a number of built-in concepts that make data engineering simple, including DAGs (which describe how to run a workflow) and Operators (which describe what actually gets done). See the Airflow documentation for more detail: https://airflow.apache.org/concepts.html
+Dagster offers a modern approach to data pipeline orchestration, with an emphasis on development productivity, operational robustness, and observability. This migration aims to leverage Dagster's advantages, such as its strong typing system, flexible execution, and powerful tooling.
 
-Airflow also comes with its own architecture: a database to persist the state of DAGs and connections, a web server that supports the user-interface, and workers that are managed together by the scheduler and database. Logs persist both in flat files and the database, and Airflow can be setup to write remote logs (to S3 for example). Logs are viewable in the UI.
+## Getting Started with Dagster
 
-![Airflow Architecture](docs/airflow_architecture.png)
+To get started with the migrated project:
 
-## A Note on managing Airflow dependencies
+1. Ensure you have Dagster and Dagit installed. You can install them using pip:
 
-Airflow is tricky to install correctly because it is both an application and a library. Applications freeze their dependencies to ensure stability, while libraries leave their dependencies open for upgrades to take advantage of new features. Airflow is both, so it doesn't freeze dependencies. This means that depending on the day, a simple `pip install apache-airflow` is not guaranteed to produce a workable version of the Airflow application.
+   ```
+   pip install dagster dagit
+   ```
 
-To combat this, Airflow provides a set of [constraints files](https://airflow.apache.org/docs/apache-airflow/stable/installation.html#constraints-files) that are known working versions of Airflow.
+2. The Airflow DAGs have been translated into Dagster jobs and can be found in the `dagster_solids.py` file.
 
-This template installs Airflow using the constraints file at `https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt` and allows for building a custom Airflow image on top of this constraints file by simply adding additional dependencies to `airflow.requirements.txt`. Local dependencies are added to `local-requirements.txt`.
+3. To run a Dagster job, execute:
 
-### Why not just use the [official docker-compose file](https://github.com/apache/airflow/blob/master/docs/apache-airflow/start/docker-compose.yaml)?
+   ```
+   dagit -f dagster_solids.py
+   ```
 
-It's easier to customize our additional dependencies with Airflow by building our own image. The master Airflow image doesn't allow this kind of low-level control.
+   This will open the Dagit UI where you can execute and monitor your jobs.
 
-This template is particularly useful to Airflow power users that tend to write a lot of custom plugins or functionality using external dependencies.
+## Contributing
 
-### Why not just extend off of the [official Airflow image](https://airflow.apache.org/docs/apache-airflow/stable/production-deployment.html#production-container-images)?
+Contributions to this project are welcome. Please refer to the original Airflow project for guidelines on contributing to the DAGs and operators.
 
-You can do this, but customizing the image yields far more optimizations, and doesn't come with any additional complexity. To add Airflow extras, you can simply add it to the `AIRFLOW_EXTRAS` variable in the Makefile:
+## Further Documentation
 
-        AIRFLOW_EXTRAS := postgres,google
-
-To install any other pip dependencies, simply add it to `airflow.requirements.txt`.
-
-## Getting Started
-
-This repository was created with `Python 3.8.6`, but should work for all versions of Python 3.
-
-DAGs should be developed & tested locally first, before being promoted to a development environment for integration testing. Once DAGs are successful in the lower environments, they can be promoted to production.
-
-Code is contributed either in `dags`, a directory that houses all Airflow DAG configuration files, or `plugins`, a directory that houses Python objects that can be used to extend Airflow.
-
-### Running Airflow locally
-
-This project uses a Makefile to consolidate common commands and make it easy for anyone to get started. To run Airflow locally, simply:
-
-        make start-airflow
-
-This command will build your local Airflow image and start Airflow automatically!
-
-Navigate to http://localhost:8080/ and start writing & testing your DAGs! Login with the user-password combo: `admin:admin` (you can change this in `docker-compose.yaml`).
-
-You'll notice in `docker-compose.yaml` that both DAGs and plugins are mounted as volumes. This means once Airflow is started, any changes to your code will be quickly synced to the webserver and scheduler. You shouldn't have to restart the Airflow instance during a period of development!
-
-When you're done, simply:
-
-        make stop-airflow
-
-### Testing & Linting
-
-Instantiating a local virtual environment is now entirely optional. You can develop entirely through Docker, as Airflow runs inside of docker-compose and `test-docker` and `lint-docker` provide avenues for running those steps without a virtual environment.
-
-However, not using a virtual environment also means sacrificing any linting/language-server functionality provided by your IDE. To setup your virtual environment:
-
-        make  venv
-
-This project is also fully linted with black and pylint, even using a cool pylint plugin called [pylint-airflow](https://pypi.org/project/pylint-airflow/). To run linting:
-
-With your virtual environment:
-
-        make lint
-
-With Docker:
-
-        make lint-docker
-
-Any tests can be placed under `tests`, we've already included a few unit tests for validating all of your DAGs and plugins to make sure they're valid to install in Airflow. To run tests:
-
-With your virtual environment:
-
-        make test
-
-Inside Docker:
-
-        make test-docker
-
-### Cleaning up your local environment
-
-If at any point you simply want to clean up or reset your local environment, you can run the following commands:
-
-Reset your local docker-compose:
-
-        make reset-airflow
-
-Rebuild the local Airflow image for docker-compose (useful if you make changes to the Dockerfile):
-
-        make rebuild-airflow
-
-Clean up Pytest artifacts:
-
-        make clean-pytest
-
-Reset your virtual environment:
-
-        make clean-venv
-
-Start completely from scratch:
-
-        make clean-all
-
-### Deployment
-
-Once you've written your DAGs, the next step is to deploy them to your Airflow instance. This is a matter of syncing the `dags` and `plugins` directories to their respective destinations.
-
-TODO: add some examples and documentation of deployments to different Airflow cloud providers (Astronomer, Cloud Composer, etc.) using different CI technologies (CircleCI, Github Actions, etc.)
-
-## Migrating from Airflow to Dagster
-
-This project has been migrated from Apache Airflow to Dagster to take advantage of Dagster's modern features for data orchestration and pipeline management. Dagster provides a more intuitive way to define and execute data workflows, with an emphasis on type safety, testability, and modularity.
-
-### Getting Started with Dagster
-
-To run the Dagster jobs, ensure you have Dagster and Dagit installed in your environment. You can install them using pip:
-
-    pip install dagster dagit
-
-The translated Airflow DAGs are now defined as Dagster jobs in the `dagster_solids.py` file located in the root of the project directory. Each Airflow operator has been converted to a Dagster `@op`, and the DAGs are represented as Dagster `@job` functions.
-
-To execute a Dagster job, run the following command:
-
-    python3 dagster_solids.py
-
-This will execute all jobs defined in the `dagster_solids.py` file. You can also execute individual jobs in Dagit by navigating to the Dagit UI and selecting the job you wish to run.
-
-### Job Configuration
-
-Dagster jobs are configured using the `run_config` structure, which specifies the parameters and resources required for execution. The `run_config` for each job is defined within the `dagster_solids.py` file, and you can modify it as needed to suit your execution environment.
-
-For more information on configuring and running Dagster jobs, refer to the [Dagster documentation](https://docs.dagster.io/overview).
-
-### Next Steps
-
-After running the jobs, you can view logs and outputs in the Dagit UI, which provides a visual interface for monitoring and debugging Dagster pipelines. For any customizations or further development, refer to the `dagster_solids.py` file and the Dagster documentation for guidance.
+For more information on working with Dagster, visit the [Dagster documentation](https://docs.dagster.io/).
